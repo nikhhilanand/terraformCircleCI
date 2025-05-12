@@ -1,25 +1,19 @@
 jobs:
-  build:
-    machine: true
-    steps:
-      - checkout
-      - run: echo "This is a build step"
-
-  tflint:
+  checkov:
     machine: true
     steps:
       - checkout
 
-      - run: docker run --rm -v $(pwd):/data -t ghcr.io/terraform-linters/tflint --chdir=aws -f json | tee tflint-output.json || true
+      - run:
+          command: docker run --rm -w /src -v $(pwd):/src bridgecrew/checkov -d aws -o json | tee checkov-output.json || true
 
       - store_artifacts:
-          path: tflint-output.json
-          destination: tflint-artifact
+          path: checkov-output.json
+          destination: checkov-artifact
           when: always
 
 workflows:
   version: 2
-  terraformCircleCI:
+  terraform:
     jobs:
-      - build
-      - tflint
+      - checkov
