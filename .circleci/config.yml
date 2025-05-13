@@ -1,19 +1,19 @@
 jobs:
-  checkov:
+  terrascan:
     machine: true
     steps:
       - checkout
 
       - run:
-          command: docker run --rm -w /src -v $(pwd):/src bridgecrew/checkov -d aws -o json | tee checkov-output.json || true
+          command: docker run --rm -v $(pwd):/src tenable/terrascan scan -t aws -d /src/aws -o json | tee terrascan-output.json || true
 
       - store_artifacts:
-          path: checkov-output.json
-          destination: checkov-artifact
+          path: terrascan-output.json
+          destination: terrascan-artifacts
           when: always
 
 workflows:
   version: 2
   terraform:
     jobs:
-      - checkov
+      - terrascan
